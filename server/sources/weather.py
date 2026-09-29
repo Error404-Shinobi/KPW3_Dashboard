@@ -23,6 +23,8 @@ from dataclasses import dataclass, field
 
 import requests
 
+from envutil import looks_like_placeholder
+
 log = logging.getLogger(__name__)
 
 WEEKDAY_ZH = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
@@ -263,6 +265,12 @@ class WeatherSource:
         token = (os.environ.get(env_name) or "").strip()
         if not token:
             return Weather(ok=False, error=f"未配置 {env_name}")
+        if looks_like_placeholder(token):
+            # 跟 token_usage 一样：拦住"模板没改就用"
+            return Weather(
+                ok=False,
+                error=f"{env_name} 看起来还是占位符，请填真实的彩云 token",
+            )
 
         lon = self.loc.get("longitude")
         lat = self.loc.get("latitude")

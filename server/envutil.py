@@ -29,3 +29,34 @@ def load_dotenv(path: str | None = None) -> None:
             value = value[1:-1]
         if key and key not in os.environ:
             os.environ[key] = value
+
+
+def looks_like_placeholder(value: str | None) -> bool:
+    """这个配置值是不是"还没填的占位符"？
+
+    ★ 为什么需要这个函数
+      给用户的模板里放的是占位符（`<YOUR_API_KEY>` 这种）。用户忘了改
+      就直接用的话，程序会拿这串东西去发 HTTP 请求 —— 而报错信息
+      **非常误导**：HTTP 头里塞了非 ASCII 会报编码错误
+      （`latin-1 codec can't encode...`），看起来像代码 bug，
+      完全联想不到"密钥忘了填"。
+
+      这个项目已经在 config.yaml 和 config.env 上各踩过一次，
+      所以把识别逻辑收在一个地方，两个数据源共用。
+
+    判定规则（**宁可误报也不要漏报** —— 误报只是让用户去检查一下，
+    漏报则是给人一个看不懂的报错）：
+      - 空 / 只有空白
+      - 含 `<` 或 `>`    ← 尖括号占位符的典型特征，正常密钥不会有
+      - 含非 ASCII       ← 旧模板留下的中文占位符
+    """
+    v = (value or "").strip()
+    if not v:
+        return True
+    if "<" in v or ">" in v:
+        return True
+    try:
+        v.encode("ascii")
+    except UnicodeEncodeError:
+        return True
+    return False

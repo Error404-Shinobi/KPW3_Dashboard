@@ -66,8 +66,8 @@ def main() -> None:
     key = os.environ.get("MINIMAX_SUBSCRIPTION_KEY", "")
     if not key:
         print("没找到 key，两种方式任选其一：")
-        print("  1) 在 server/.env 里写一行：MINIMAX_SUBSCRIPTION_KEY=你的key")
-        print("  2) 设环境变量：export MINIMAX_SUBSCRIPTION_KEY=你的key"
+        print("  1) 在 server/.env 里写一行：MINIMAX_SUBSCRIPTION_KEY=<YOUR_MINIMAX_KEY>")
+        print("  2) 设环境变量：export MINIMAX_SUBSCRIPTION_KEY=<YOUR_MINIMAX_KEY>"
               "（PowerShell 用 $env:MINIMAX_SUBSCRIPTION_KEY=\"...\"）")
         sys.exit(1)
 

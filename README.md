@@ -248,12 +248,12 @@ token:
 # 方式一（推荐）：写进 .env，跟 shell 无关，Windows / Linux 都一样
 cd server
 cp .env.example .env
-$EDITOR .env          # 填 MINIMAX_SUBSCRIPTION_KEY=你的SubscriptionKey
+$EDITOR .env          # 填 MINIMAX_SUBSCRIPTION_KEY=<YOUR_MINIMAX_KEY>
 
 # 方式二：设环境变量
-export MINIMAX_SUBSCRIPTION_KEY=你的SubscriptionKey
-# PowerShell 是 $env:MINIMAX_SUBSCRIPTION_KEY="你的SubscriptionKey"
-# CMD 是 set MINIMAX_SUBSCRIPTION_KEY=你的SubscriptionKey
+export MINIMAX_SUBSCRIPTION_KEY=<YOUR_MINIMAX_KEY>
+# PowerShell 是 $env:MINIMAX_SUBSCRIPTION_KEY="<YOUR_MINIMAX_KEY>"
+# CMD 是 set MINIMAX_SUBSCRIPTION_KEY=<YOUR_MINIMAX_KEY>
 ```
 
 然后跑探测：

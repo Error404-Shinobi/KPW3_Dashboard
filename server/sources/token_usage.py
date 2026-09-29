@@ -19,6 +19,8 @@ import re
 import time
 from dataclasses import dataclass, field
 
+from envutil import looks_like_placeholder
+
 import requests
 
 log = logging.getLogger(__name__)
@@ -227,6 +229,13 @@ class TokenSource:
         key = os.environ.get(key_env, "")
         if not key:
             raise ValueError(f"环境变量 {key_env} 没设置（注意要放 Subscription Key）")
+        if looks_like_placeholder(key):
+            # ★ 拦住"模板没改就用了"：占位符原样发出去，报错会是
+            #   HTTP 头编码失败之类的怪东西，完全看不出是没填密钥。
+            raise ValueError(
+                f"{key_env} 的值看起来还是模板里的占位符（{key[:24]!r}）—— "
+                f"请填真实密钥，别把 .env.example 里的示例原样抄过来"
+            )
 
         url = self.cfg.get("url") or "https://api.minimax.io/v1/token_plan/remains"
         r = requests.get(

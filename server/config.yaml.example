@@ -66,7 +66,7 @@ weather:
   update_secs: 1800
 
 # 天气源的 token 放这里（跟 MiniMax 一样走 .env，别写进本文件）
-#   CAIYUN_TOKEN=你的彩云token
+#   CAIYUN_TOKEN=<YOUR_CAIYUN_TOKEN>
 #
 # 彩云的 token 从 https://dashboard.caiyunapp.com/ 拿。
 # 免费版配额：总量 10000 次、**QPS = 1**（每秒只能 1 次请求）。

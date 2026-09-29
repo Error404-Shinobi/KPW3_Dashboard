@@ -275,12 +275,12 @@ Two ways to provide the key — pick one:
 # Option 1 (recommended): put it in .env, shell-independent
 cd server
 cp .env.example .env
-$EDITOR .env          # set MINIMAX_SUBSCRIPTION_KEY=your_key
+$EDITOR .env          # set MINIMAX_SUBSCRIPTION_KEY=<YOUR_MINIMAX_KEY>
 
 # Option 2: environment variable
-export MINIMAX_SUBSCRIPTION_KEY=your_key
+export MINIMAX_SUBSCRIPTION_KEY=<YOUR_MINIMAX_KEY>
 # PowerShell: $env:MINIMAX_SUBSCRIPTION_KEY="your_key"
-# CMD:        set MINIMAX_SUBSCRIPTION_KEY=your_key
+# CMD:        set MINIMAX_SUBSCRIPTION_KEY=<YOUR_MINIMAX_KEY>
 ```
 
 Then run the probe:
