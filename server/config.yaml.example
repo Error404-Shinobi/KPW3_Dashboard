@@ -1,0 +1,83 @@
+# KPW3 墨水屏看板配置
+# 复制为 config.yaml 后再改：cp config.yaml.example config.yaml
+
+server:
+  # ★ 这个端口必须和 nginx 的 proxy_pass 一致，且不能和 nginx 监听的口冲突！
+  #
+  # 架构：nginx 监听 8787（对公网）→ 反代到 Flask 的 8789（只在本机）。
+  # 所以这里填 8789（内部端口），不是 8787。
+  #
+  # 常见错误：这里填 8787 → Flask 和 nginx 抢同一个端口 →
+  # Flask 永远起不来，日志报 "Address already in use"，
+  # 而且 `pkill main.py` 杀不掉占用者（占用者其实是 nginx）。
+  host: 127.0.0.1
+  port: 8789
+  # 图片缓存秒数，避免 Kindle 每次请求都去打上游 API
+  cache_secs: 120
+
+display:
+  # 横屏画布尺寸（这里填的是"转 90° 之前"的尺寸）。
+  # 1448 x 1072 旋转后正好是 KPW3 framebuffer 的 1072 x 1448 竖屏。
+  # 注意：PW1/PW2 是 758x1024，别照抄
+  width: 1448
+  height: 1072
+  # 屏幕是 16 级灰度，posterize 到 4bit 后边缘更干净
+  grayscale_levels: 16
+  # ★ 输出旋转 90° 的竖屏灰度图 —— eips 刷屏必须开这个。
+  # eips -g 不做任何旋转，图必须自己先转好并转成 8 位灰度，
+  # 否则屏幕上会错位（表现为"竖屏版 + 被切掉右边 + 弹出键盘"）。
+  # 只想在浏览器里直观看横屏渲染效果时，可临时设成 false。
+  rotate: true
+
+fonts:
+  # 留空则自动扫描系统里的中文字体
+  regular: ""
+  # 数字/温度用的字体，留空则跟随 regular
+  display: ""
+
+location:
+  name: 上海
+  latitude: 31.2304
+  longitude: 121.4737
+  timezone: Asia/Shanghai
+
+weather:
+  enabled: true
+  # Open-Meteo 免费且不需要 API key
+  url: https://api.open-meteo.com/v1/forecast
+  update_secs: 1800
+
+token:
+  # minimax = MiniMax Token Plan 官方接口（双窗口，推荐直接用这个）
+  # generic = 任意 HTTP 接口 + 下面的 extract 取值路径
+  provider: minimax
+  enabled: true
+  # 面板上显示的名字
+  label: MiniMax Token Plan
+  # 国内账号用 minimaxi.com，国际账号用 minimax.io —— 跨区必定 invalid api key
+  url: https://api.minimaxi.com/v1/token_plan/remains
+  # 额度按模型拆分，一般关心 general（响应里还可能有 video 等）
+  model: general
+  # 放 Subscription Key 的环境变量名。
+  # 必须是 Subscription Key（Token Plan 订阅凭证），
+  # pay-as-you-go 的 API Key 调 /token_plan/remains 会 401/403
+  api_key_env: MINIMAX_SUBSCRIPTION_KEY
+
+  # ↓↓↓ 以下只在 provider=generic 时才用到 ↓↓↓
+  method: GET
+  headers:
+    # 支持 ${ENV_VAR} 占位符，会从环境变量展开
+    Authorization: "Bearer ${TOKEN_API_KEY}"
+  # 可选：POST 请求体（JSON 字符串），GET 时忽略
+  body: ""
+  timeout: 15
+  update_secs: 300
+  # 从响应 JSON 里取值，点号分隔路径，支持数组下标如 data.items[0].used
+  extract:
+    used: ""
+    limit: ""
+    reset_at: ""
+  # 如果 API 只返回剩余量，用这个开关
+  extract_is_remaining: false
+  # 单位显示，比如 "tokens" / "credits" / "次"
+  unit: tokens

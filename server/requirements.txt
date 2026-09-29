@@ -1,0 +1,10 @@
+# 下限放宽过，老一点的 Python 也能装。
+# 需要 Python >= 3.7（代码用了 dataclasses），推荐 3.9+。
+# 服务器自带 Python 太老（CentOS 7 常带 3.6）时别硬装，直接装个新 Python。
+#
+# 注：旋转用 transpose(2) 而非 Image.Transpose.ROTATE_90，
+# 就是为了兼容这里的 Pillow 8.x（后者要 >= 9.1）。别改成新写法。
+Flask>=2.0.0
+Pillow>=8.0.0
+PyYAML>=5.1
+requests>=2.20.0

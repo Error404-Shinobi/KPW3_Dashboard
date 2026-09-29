@@ -1,0 +1,28 @@
+# ── 密钥与个人配置（绝对不要提交）──────────────────────────
+.env
+server/.env
+server/config.yaml
+kindle-copy/config.env
+
+# ── 运行时产物 ────────────────────────────────────────────
+server/.control
+server/.control.*
+*.log
+server/preview*.png
+
+# ── 本地工作副本（含真实地址/token，只在本机用）─────────────
+kindle-copy/
+server-copy/
+
+# ── Python ───────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+
+# ── 系统垃圾 ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# 内部版工程记录（含真实部署信息，发布用 PROJECT-LOG.md）
+docs/PROJECT-LOG-internal.md
