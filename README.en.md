@@ -407,21 +407,33 @@ under `/etc/upstart/` (needs root and a writable filesystem).
 
 ## ★ How to exit the dashboard (read this first)
 
-**Once the dashboard is running, you cannot type any command on the Kindle —
-including a command to exit it.**
+**Bottom line: the only reliable way out is to force a reboot by holding
+the power button.**
 
-Why: the search box is provided by `lab126_gui`, and the dashboard stops
-exactly that service to take over the screen. (`;log` command *execution* is
-system-level, but **entering it requires the search box**, so in practice
-it's unavailable. We got this wrong initially — we assumed `;log stopdash`
-was always usable, but on a running dashboard you simply can't type it.)
+### Why it comes down to one method
 
-**So there are only two ways out:**
+Once the dashboard is running, **you cannot type any command on the Kindle** —
+the search box is provided by `lab126_gui`, and the dashboard stops exactly
+that service to take over the screen. (`;log` command *execution* is indeed
+system-level, but **entering it requires the search box**.)
 
-| Method | How | Notes |
-|---|---|---|
-| **① Web remote** (recommended) | Open the remote page in a browser, click "Exit dashboard", then **press the power button once to wake the device** | Needs network. While the device is in deep sleep it can't receive commands, so this takes effect "on next wake", not immediately |
-| **② Force reboot** | **Hold the power button for 10+ seconds** until it reboots | No network needed, always available. Costs a reboot cycle |
+What about the "web remote exit"? **It depends on the network, and the
+dashboard's network is not reliable** — e.g. it connects to a phone hotspot,
+which drops whenever the phone leaves.
+
+> **Measured**: with the hotspot off, clicking "Exit dashboard" in the
+> browser and then pressing the power button to wake the device **still
+> didn't exit**. The status request issued after waking failed as well
+> (the device log said the local network was unreachable).
+>
+> Put another way: **the more you need it — offline, in trouble — the less
+> it works.**
+
+### So there is one method
+
+| Action | Notes |
+|---|---|
+| **Hold the power button 10+ seconds until it reboots** | No network needed, always available |
 
 **Things you need to know**:
 
@@ -429,12 +441,14 @@ was always usable, but on a running dashboard you simply can't type it.)
   the "Restart / Cancel / Turn off screen" menu.** The device is in deep
   sleep most of the time, and in that state a long press means "wake up",
   not "show UI menu". **But holding it long enough (10+ s) still forces a
-  reboot** — that's your fallback.
+  reboot** — this is the one reliable way out.
 - Want that menu? **Hold the button while the dashboard is not running**
   (e.g. right after a reboot, before starting the dashboard).
-- `stopdash.sh` / `;log stopdash` is **not** a way to exit a running
-  dashboard — it's for **after** the dashboard has already stopped, to clean
-  up leftovers and restore the native UI.
+- `stopdash.sh` / `;log stopdash` is **not** an exit method — it's for
+  **after** the dashboard has already stopped, to clean up leftovers and
+  restore the native UI.
+- (The web-remote code is still there and would work on a healthy network,
+  but **don't rely on it as your exit strategy**.)
 
 ---
 
@@ -489,8 +503,8 @@ on each fetch and passes it in the URL; the server draws it top-right. So
 Dashboard and reading don't have to be mutually exclusive:
 
 - **To read**: exit the dashboard first using the method in "How to exit the
-  dashboard" above (web remote, or a long-press reboot), then use KOReader
-  normally
+  dashboard" above (**hold the power button 10+ seconds to reboot**), then use
+  KOReader normally
 - **To return**: from the native UI, type `;log runme` in the search box
 
 With KOReader installed you can read `.md` files directly — copy an Obsidian
