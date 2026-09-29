@@ -359,11 +359,16 @@ class Renderer:
                 anchor="la",
             )
 
-        # 剩余百分比。前面加一个「剩」字，避免被误读成"已用"——
-        # 进度条满格 = 额度充足，这个方向必须一眼可辨。
-        pct = w.percent_remaining
+        # ★ 口径：条上画的是「已消耗」—— 空白 = 还能用，黑条 = 用掉了。
+        #
+        #   数据层给的仍然是「剩余」（见 Window 的注释），这里翻一下再画。
+        #   历史：最早画的是剩余（满额 = 满黑条），后来按实际使用习惯改成
+        #   已消耗 —— 「还剩多少」看右边的数字，「用掉多少」看条的长度。
+        pct_remaining = w.percent_remaining
+        pct_used = None if pct_remaining is None else max(0.0, 100.0 - pct_remaining)
+
         right = L.width - M
-        pct_text = "--" if pct is None else f"{pct:.0f}%"
+        pct_text = "--" if pct_used is None else f"{pct_used:.0f}%"
         d.text(
             (right, y_label + 6),
             pct_text,
@@ -371,22 +376,24 @@ class Renderer:
             fill=BLACK,
             anchor="ra",
         )
-        if pct is not None:
-            # 「剩」放在数字左侧。按实际文字宽度定位，不含糊估。
+        if pct_used is not None:
+            # 「用」放在数字左侧，免得被读成"剩余"。按实际文字宽度定位，不含糊估。
             try:
                 tw = d.textlength(pct_text, font=self._f(38, display=True))
             except Exception:
                 tw = len(pct_text) * 22
             d.text(
                 (right - tw - 10, y_label + 14),
-                "剩",
+                "用",
                 font=self._f(24),
                 fill=GRAY,
                 anchor="ra",
             )
 
+        # 底：浅灰 —— 代表"还能用"的那段空间，视觉上接近空白
         d.rectangle([x0, y_bar, x1, y_bar + h], fill=232)
-        if pct is not None:
-            fw = int((x1 - x0) * pct / 100)
+        # 已消耗的部分：填黑（从左边开始长）
+        if pct_used is not None:
+            fw = int((x1 - x0) * pct_used / 100)
             d.rectangle([x0, y_bar, x0 + fw, y_bar + h], fill=BLACK)
         d.rectangle([x0, y_bar, x1, y_bar + h], outline=BLACK, width=2)
