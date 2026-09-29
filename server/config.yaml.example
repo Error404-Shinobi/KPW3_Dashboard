@@ -43,9 +43,38 @@ location:
 
 weather:
   enabled: true
-  # Open-Meteo 免费且不需要 API key
+  # 用哪家天气源：
+  #   open-meteo （默认）免费、不需要 key
+  #   caiyun     彩云天气，需要 token
+  #
+  # ★ 选 caiyun 时**实况和预报会分别取两家**（各取所长）：
+  #     实况  → 彩云       （1km 分辨率，更准）
+  #     预报  → Open-Meteo （免费给 5 天；彩云免费版只给 3 天）
+  #   —— 这样配好之后什么都不用管，代码里自动分工。
+  provider: open-meteo
+
+  # ── provider = open-meteo 时用这个地址 ────────────────────
   url: https://api.open-meteo.com/v1/forecast
+
+  # ── provider = caiyun 时，改成下面这样 ────────────────────
+  # url: https://api.caiyunapp.com/v2.6
+  # token_env: CAIYUN_TOKEN
+  # forecast_url: https://api.open-meteo.com/v1/forecast
+  #   ↑ 必填！混合模式下预报走这里。
+  #     别指望它自动复用上面的 url —— 那个是彩云地址，打 Open-Meteo 会 404。
+
   update_secs: 1800
+
+# 天气源的 token 放这里（跟 MiniMax 一样走 .env，别写进本文件）
+#   CAIYUN_TOKEN=你的彩云token
+#
+# 彩云的 token 从 https://dashboard.caiyunapp.com/ 拿。
+# 免费版配额：总量 10000 次、**QPS = 1**（每秒只能 1 次请求）。
+#   看板 30 分钟拉一次，一天才 48 次 —— 日常用完全够。
+#   但**别写循环连着打**，会直接 429。
+#
+# 另外它的 URL 路径是「经度,纬度」—— 和 latitude,longitude 的常见
+# 写法相反，代码里已经处理好了，你只要填对 location 那段即可。
 
 token:
   # minimax = MiniMax Token Plan 官方接口（双窗口，推荐直接用这个）
