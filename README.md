@@ -1,5 +1,7 @@
 # KPW3 墨水屏看板
 
+**中文** | [English](README.en.md)
+
 把闲置的 Kindle Paperwhite 3 改成常显信息面板：日期时间、天气、
 **MiniMax Token Plan 额度消耗**，顺便还能当 KOReader 笔记阅读器用。
 
@@ -65,8 +67,8 @@ img.convert("L")      # 8 位灰度，跟 framebuffer 对齐
 | `server/config.yaml.example` | 配置文件模板，复制成 `config.yaml` 再改 |
 | `kindle/dashboard.sh` | Kindle 上的刷新守护脚本 |
 | `kindle/config.env.example` | **设备端配置模板**，复制成 `config.env` 放 Kindle 上 |
-| `kindle/runme.sh` | 免 SSH 入口，搜索框 `;log runme` 触发 |
-| `kindle/stopdash.sh` | 退出看板，搜索框 `;log stopdash` 触发 |
+| `kindle/runme.sh` | 免 SSH 入口，从原生界面用搜索框 `;log runme` 启动看板 |
+| `kindle/stopdash.sh` | 看板**已停止**后清理残留、恢复原生界面（**不能退出运行中的看板**，见下文） |
 | `kindle/install.sh` | 从电脑把脚本推到 Kindle |
 | `docs/PROJECT-LOG.md` | **完整工程记录**（架构决策 + 踩坑 + 速查） |
 | `docs/pitfalls.md` | **踩坑记录**，部署前先看这个 |
@@ -393,6 +395,32 @@ DASH_SERVER=http://192.168.1.10:8787 /mnt/us/dashboard/dashboard.sh start
 DASH_INTERVAL=300 DASH_SERVER=http://服务器IP:8787 /mnt/us/dashboard/dashboard.sh start
 ```
 
+## ★ 怎么退出看板（先看这节）
+
+**看板跑起来之后，你就没法在 Kindle 上输入任何命令了 —— 连带退出都做不到。**
+
+原因：搜索框是 `lab126_gui` 提供的，而看板为了独占屏幕**恰好把它停掉了**。
+（`;log` 命令的执行确实是系统级的，但**输入它需要搜索框**，所以实际用不了。
+这个坑我们踩过：一开始以为 `;log stopdash` 随时可用，实测在运行中的看板上根本敲不出来。）
+
+**所以退出只有两条路：**
+
+| 方式 | 怎么做 | 说明 |
+|---|---|---|
+| **① 网页遥控**（推荐） | 浏览器打开遥控页点「退出看板」→ 再**按一下电源键唤醒设备** | 需要网络。设备深度休眠时收不到指令，所以是"下次醒来生效"，不是点了立刻退 |
+| **② 强制重启** | **长按电源键 10 秒以上**，直到设备重启 | 不需要网络，永远可用。代价是重启要等一会儿 |
+
+**几个必须知道的点**：
+
+- **看板运行时，长按电源键不会弹出「重启 / 取消 / 熄屏」菜单。**
+  因为设备大部分时间在深度休眠，此时长按的语义是「唤醒」而不是「弹 UI 菜单」。
+  **但按得够久（10 秒以上）依然会强制重启**，这是保底手段。
+- 想要那个菜单？**得在看板没跑的时候长按**（比如刚重启完、还没启动看板时）。
+- `stopdash.sh` / `;log stopdash` **不是用来退出运行中的看板的** ——
+  它是在**看板已经停了之后**，用来清理残留、把原生界面还回来的。
+
+---
+
 ## 已知坑
 
 | 现象 | 原因 / 处理 |
@@ -414,9 +442,9 @@ DASH_INTERVAL=300 DASH_SERVER=http://服务器IP:8787 /mnt/us/dashboard/dashboar
 
 看板和阅读不用二选一：
 
-- 想看书：`/mnt/us/dashboard/dashboard.sh stop`（脚本会恢复 framework），
+- **想看书**：先按上面「怎么退出看板」那节的办法退出（网页遥控，或长按电源键重启），
   然后正常用 KOReader
-- 想回看板：再 `start` 一次
+- **想回看板**：回到原生界面后，搜索框输入 `;log runme`
 
 KOReader 装在 Kindle 上后可以直接读 `.md`，把 Obsidian 库拷进 `documents`
 就能在墨水屏上看笔记。注意 `[[双链]]` 不会变成可点击链接，Dataview、插件
